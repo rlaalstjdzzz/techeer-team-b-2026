@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Newspaper } from 'lucide-react';
 
 interface NewsSectionProps {
   isDarkMode: boolean;
@@ -28,28 +28,28 @@ const newsItems = [
 
 export default function NewsSection({ isDarkMode }: NewsSectionProps) {
   return (
-    <div className={`rounded-3xl overflow-hidden border ${
-      isDarkMode 
-        ? 'bg-gradient-to-br from-zinc-900 to-zinc-900/50 border-white/10' 
-        : 'bg-white border-black/5 shadow-lg shadow-black/5'
-    }`}>
-      <div className="p-5 pb-3">
-        <h2 className={`font-bold ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+    <div className="mb-4">
+      {/* 헤더 라인 */}
+      <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-3">
+        <h2 className={`font-bold text-lg flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+          <Newspaper className={`w-5 h-5 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
           주요 뉴스
         </h2>
-        <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-zinc-600' : 'text-zinc-500'}`}>
-          부동산 시장 소식
-        </p>
       </div>
       
+      {/* 뉴스 목록 */}
       <div>
         {newsItems.map((news, index) => (
           <button
             key={index}
-            className={`w-full p-4 text-left transition-all active:scale-[0.98] active:brightness-90 border-t ${
+            className={`w-full p-4 text-left transition-colors ${
+              index !== newsItems.length - 1
+                ? `border-b ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`
+                : ''
+            } ${
               isDarkMode
-                ? 'hover:bg-zinc-800/50 active:bg-zinc-800/70 border-white/5'
-                : 'hover:bg-sky-50/50 active:bg-sky-50 border-black/5'
+                ? 'hover:bg-zinc-800/30'
+                : 'hover:bg-zinc-50'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -82,11 +82,12 @@ export default function NewsSection({ isDarkMode }: NewsSectionProps) {
         ))}
       </div>
 
+      {/* 더보기 버튼 */}
       <button
-        className={`w-full px-5 py-4 text-sm font-semibold transition-all active:scale-[0.98] active:brightness-90 border-t ${
+        className={`w-full px-5 py-4 text-sm font-semibold transition-colors border-t ${
           isDarkMode
-            ? 'text-sky-400 hover:bg-zinc-800/50 active:bg-zinc-800/70 border-white/5'
-            : 'text-sky-600 hover:bg-sky-50/50 active:bg-sky-50 border-black/5'
+            ? 'text-sky-400 hover:bg-zinc-800/30 border-zinc-800'
+            : 'text-sky-600 hover:bg-zinc-50 border-zinc-200'
         }`}
       >
         더보기
