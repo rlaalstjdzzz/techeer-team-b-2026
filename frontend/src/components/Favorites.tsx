@@ -937,34 +937,45 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                         key={`stats-${selectedRegionId}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`rounded-2xl p-5 ${
-                          isDarkMode ? 'bg-zinc-900 border border-zinc-800' : 'bg-white border border-zinc-200'
+                        className={`rounded-2xl border overflow-hidden ${
+                          isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <div className="flex items-center gap-2">
-                            <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
-                            <h3 className={`font-bold text-lg ${textPrimary}`}>
-                              {regionName}
-                              {cityName && <span className="text-sm font-normal opacity-70 ml-1">({cityName})</span>}
-                            </h3>
+                        {/* 헤더 */}
+                        <div className="p-5 pb-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
+                              <div>
+                                <h3 className={`font-bold text-lg ${textPrimary}`}>
+                                  {regionName}
+                                  {cityName && <span className="text-sm font-normal opacity-70 ml-1">({cityName})</span>}
+                                </h3>
+                                <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                                  지역 통계 정보
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLocation(selectedRegionId);
+                              }}
+                              className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 relative overflow-hidden ${
+                                unfavoritingLocations.has(selectedRegionId)
+                                  ? isDarkMode
+                                    ? 'bg-zinc-800 text-zinc-400 border-2 border-zinc-700'
+                                    : 'bg-white text-zinc-400 border-2 border-zinc-200'
+                                  : 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 text-yellow-900 border-2 border-yellow-400 shadow-lg shadow-yellow-500/50 ring-2 ring-yellow-400/50 hover:scale-110'
+                              }`}
+                            >
+                              <Star className={`w-5 h-5 ${unfavoritingLocations.has(selectedRegionId) ? '' : 'fill-current'}`} />
+                            </button>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteLocation(selectedRegionId);
-                            }}
-                            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 relative overflow-hidden ${
-                              unfavoritingLocations.has(selectedRegionId)
-                                ? isDarkMode
-                                  ? 'bg-zinc-800 text-zinc-400 border-2 border-zinc-700'
-                                  : 'bg-white text-zinc-400 border-2 border-zinc-200'
-                                : 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 text-yellow-900 border-2 border-yellow-400 shadow-lg shadow-yellow-500/50 ring-2 ring-yellow-400/50 hover:scale-110'
-                            }`}
-                          >
-                            <Star className={`w-5 h-5 ${unfavoritingLocations.has(selectedRegionId) ? '' : 'fill-current'}`} />
-                          </button>
                         </div>
+                        
+                        {/* 통계 정보 */}
+                        <div className="px-5 pb-5">
                         
                         {isLoadingStats ? (
                           <div className={`text-center py-4 ${textSecondary}`}>통계 로딩 중...</div>
@@ -1021,6 +1032,7 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                             통계 데이터를 불러올 수 없습니다
                           </div>
                         )}
+                        </div>
                       </motion.div>
                     );
                   })()}

@@ -594,31 +594,37 @@ export default function Dashboard({ onApartmentClick, onRegionSelect, onShowMore
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`mb-4 p-4 rounded-2xl border ${
+          className={`mb-4 rounded-2xl border overflow-hidden ${
             isDarkMode
               ? 'bg-zinc-900 border-zinc-800'
               : 'bg-white border-zinc-200'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
-                {selectedLocation.full_name.replace(/([가-힣])(\()/g, '$1 $2')}
-              </h3>
-              <p className={`text-sm mt-1 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                {isLoadingRegionApartments ? '아파트 조회 중...' : `${regionApartments.length}개의 아파트`}
-              </p>
+          {/* 헤더 */}
+          <div className="p-5 pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
+                <div>
+                  <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+                    {selectedLocation.full_name.replace(/([가-힣])(\()/g, '$1 $2')}
+                  </h3>
+                  <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                    {isLoadingRegionApartments ? '아파트 조회 중...' : `${regionApartments.length}개의 아파트`}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleClearLocation}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDarkMode
+                    ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white'
+                    : 'hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                <X size={20} />
+              </button>
             </div>
-            <button
-              onClick={handleClearLocation}
-              className={`p-2 rounded-lg transition-colors ${
-                isDarkMode
-                  ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white'
-                  : 'hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <X size={20} />
-            </button>
           </div>
         </motion.div>
       )}
