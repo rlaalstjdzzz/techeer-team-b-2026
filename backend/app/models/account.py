@@ -47,6 +47,7 @@ class Account(Base):
     clerk_user_id: Mapped[Optional[str]] = mapped_column(
         String(255),
         nullable=True,
+        unique=True,
         comment="Clerk 사용자 ID"
     )
     
