@@ -17,10 +17,13 @@ import {
 import { searchLocations, LocationSearchResult, getApartmentsByRegion } from '../lib/searchApi';
 import { searchApartments, ApartmentSearchResult } from '../lib/searchApi';
 import { getApartmentTransactions } from '../lib/apartmentApi';
+
 import { getNewsList, getNewsDetail, NewsResponse, formatTimeAgo } from '../lib/newsApi';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './ui/Toast';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { useDynamicIslandToast } from './ui/DynamicIslandToast';
+
 
 interface FavoritesProps {
   onApartmentClick?: (apartment: any) => void;
@@ -31,6 +34,8 @@ interface FavoritesProps {
 export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = false }: FavoritesProps) {
   const { isSignedIn, getToken } = useAuth();
   const toast = useToast();
+  const { showSuccess, showError, showWarning, showInfo, ToastComponent } = useDynamicIslandToast(isDarkMode, 3000);
+
   const [activeTab, setActiveTab] = useState<'regions' | 'apartments'>('regions');
   
   // 즐겨찾기 데이터
@@ -462,19 +467,20 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
 
   const handleAddLocation = async (region: LocationSearchResult) => {
     if (!isSignedIn || !getToken) {
-      toast.warning('로그인이 필요합니다.');
+      showWarning('로그인이 필요합니다.');
       return;
     }
 
     if (!region.region_id) {
-      toast.error('유효하지 않은 지역입니다.');
+      showError('유효하지 않은 지역입니다.');
       return;
     }
 
     const addedRegionId = region.region_id;
     try {
-      await addFavoriteLocation(getToken, addedRegionId);
-      toast.success('즐겨찾는 지역에 추가되었습니다.');
+
+      await addFavoriteLocation(getToken, region.region_id);
+      showSuccess('즐겨찾는 지역에 추가되었습니다.');
       setIsSearchingLocation(false);
       setLocationSearchQuery('');
       await loadFavoriteLocations();
@@ -489,15 +495,15 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
     } catch (error: any) {
       console.error('지역 추가 실패:', error);
       if (error.response?.status === 404) {
-        toast.error('지역을 찾을 수 없습니다.');
+        showError('지역을 찾을 수 없습니다.');
       } else if (error.response?.status === 409 || error.message?.includes('이미 추가')) {
-        toast.info('이미 즐겨찾기에 추가된 지역입니다.');
+        showInfo('이미 즐겨찾기에 추가된 지역입니다.');
       } else if (error.response?.status === 400 || error.message?.includes('제한')) {
-        toast.error('즐겨찾기 지역은 최대 50개까지 추가할 수 있습니다.');
+        showError('즐겨찾기 지역은 최대 50개까지 추가할 수 있습니다.');
       } else if (error.response?.status === 500) {
-        toast.error('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        showError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       } else {
-        toast.error('지역 추가에 실패했습니다.');
+        showError('지역 추가에 실패했습니다.');
       }
     }
   };
@@ -510,7 +516,7 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
 
     try {
       await deleteFavoriteLocation(getToken, regionId);
-      toast.success('즐겨찾는 지역에서 제거되었습니다.');
+      showSuccess('즐겨찾는 지역에서 제거되었습니다.');
       // 애니메이션을 0.2초 더 보여주기 위해 지연
       await new Promise(resolve => setTimeout(resolve, 200));
       await loadFavoriteLocations();
@@ -521,29 +527,32 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
         newSet.delete(regionId);
         return newSet;
       });
-      toast.error('지역 제거에 실패했습니다.');
+      console.error('지역 제거 실패:', error);
+      showError('지역 제거에 실패했습니다.');
+
     }
   };
 
   const handleAddApartment = async (apartment: ApartmentSearchResult) => {
     if (!isSignedIn || !getToken) {
-      toast.warning('로그인이 필요합니다.');
+      showWarning('로그인이 필요합니다.');
       return;
     }
 
     try {
       await addFavoriteApartment(getToken, apartment.apt_id);
-      toast.success('즐겨찾는 매물에 추가되었습니다.');
+      showSuccess('즐겨찾는 매물에 추가되었습니다.');
+
       setIsSearchingApartment(false);
       setApartmentSearchQuery('');
       await loadFavoriteApartments();
     } catch (error: any) {
       if (error.message?.includes('이미 추가')) {
-        toast.info('이미 즐겨찾기에 추가된 아파트입니다.');
+        showInfo('이미 즐겨찾기에 추가된 아파트입니다.');
       } else if (error.message?.includes('제한')) {
-        toast.error('즐겨찾기 아파트는 최대 100개까지 추가할 수 있습니다.');
+        showError('즐겨찾기 아파트는 최대 100개까지 추가할 수 있습니다.');
       } else {
-        toast.error('아파트 추가에 실패했습니다.');
+        showError('아파트 추가에 실패했습니다.');
       }
     }
   };
@@ -556,7 +565,8 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
 
     try {
       await deleteFavoriteApartment(getToken, aptId);
-      toast.success('즐겨찾는 매물에서 제거되었습니다.');
+<<<<<<< HEAD
+      showSuccess('즐겨찾는 매물에서 제거되었습니다.');
       // 애니메이션을 0.2초 더 보여주기 위해 지연
       await new Promise(resolve => setTimeout(resolve, 500));
       await loadFavoriteApartments();
@@ -567,7 +577,7 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
         newSet.delete(aptId);
         return newSet;
       });
-      toast.error('아파트 제거에 실패했습니다.');
+      showError('아파트 제거에 실패했습니다.');
     }
   };
 
@@ -702,7 +712,13 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
 
   return (
     <div className={`w-full ${isDesktop ? 'space-y-6 max-w-6xl mx-auto' : 'space-y-5'}`}>
+<<<<<<< HEAD
       <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} isDarkMode={isDarkMode} />
+=======
+      {/* 다이나믹 아일랜드 토스트 */}
+      {ToastComponent}
+      {ToastComponent}
+>>>>>>> ef758ad33e587f653345b4ad7900818a809aae40
       
       {/* Tab Selector */}
       <div className={`flex gap-2 p-1.5 rounded-2xl ${isDarkMode ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
