@@ -62,7 +62,7 @@ COMMENT ON COLUMN states.is_deleted IS '삭제 여부 (소프트 삭제)';
 -- ============================================================
 CREATE TABLE IF NOT EXISTS accounts (
     account_id SERIAL PRIMARY KEY,
-    clerk_user_id VARCHAR(255) UNIQUE,
+    clerk_user_id VARCHAR(255),
     email VARCHAR(255),
     is_admin VARCHAR(255),
     created_at TIMESTAMP,
