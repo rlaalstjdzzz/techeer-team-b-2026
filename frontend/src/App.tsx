@@ -409,7 +409,7 @@ export default function App() {
                   >
                     {currentView === 'dashboard' && <Dashboard onApartmentClick={handleApartmentSelect} onRegionSelect={handleRegionSelect} onShowMoreSearch={handleShowMoreSearch} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'map' && <MapView onApartmentSelect={handleApartmentSelect} onRegionSelect={handleRegionSelect} onShowMoreSearch={handleShowMoreSearch} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
-                    {currentView === 'favorites' && <Favorites onApartmentClick={handleApartmentSelect} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
+                    {currentView === 'favorites' && <Favorites onApartmentClick={handleApartmentSelect} onRegionSelect={handleRegionSelect} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'statistics' && <Statistics isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'myHome' && (
                       <MyHome 

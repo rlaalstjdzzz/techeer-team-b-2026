@@ -28,11 +28,12 @@ import { useDynamicIslandToast } from './ui/DynamicIslandToast';
 
 interface FavoritesProps {
   onApartmentClick?: (apartment: any) => void;
+  onRegionSelect?: (region: LocationSearchResult) => void;
   isDarkMode: boolean;
   isDesktop?: boolean;
 }
 
-export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = false }: FavoritesProps) {
+export default function Favorites({ onApartmentClick, onRegionSelect, isDarkMode, isDesktop = false }: FavoritesProps) {
   const { isSignedIn, getToken } = useAuth();
   const toast = useToast();
 
@@ -883,6 +884,11 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                       <div 
                         ref={locationsScrollRef} 
                         className="flex gap-2 overflow-x-auto overflow-y-hidden scrollbar-hide pb-2 pr-2"
+                        style={{
+                          WebkitOverflowScrolling: 'touch',
+                          touchAction: 'pan-x',
+                          scrollBehavior: 'smooth',
+                        }}
                       >
                     {favoriteLocations.map((fav) => {
                       // 백엔드 응답 구조에 맞춤: region_name, city_name이 직접 포함됨
@@ -955,8 +961,20 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                         key={`stats-${selectedRegionId}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`rounded-2xl border overflow-hidden ${
-                          isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
+                        onClick={() => {
+                          if (onRegionSelect) {
+                            onRegionSelect({
+                              region_id: selectedRegionId,
+                              region_name: regionName,
+                              city_name: cityName,
+                              region_code: '',
+                              full_name: cityName ? `${cityName} ${regionName}` : regionName,
+                              location_type: 'sigungu' as const,
+                            });
+                          }
+                        }}
+                        className={`rounded-2xl border overflow-hidden cursor-pointer transition-all hover:shadow-lg ${
+                          isDarkMode ? 'bg-zinc-900 border-zinc-800 hover:border-zinc-700' : 'bg-white border-zinc-200 hover:border-zinc-300'
                         }`}
                       >
                         {/* 헤더 */}
@@ -1069,14 +1087,16 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                               isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
                             }`}
                           >
-                            <div className="flex flex-col py-4 px-5 gap-1">
-                              <h2 className={`font-bold flex items-center gap-2 ${textPrimary}`}>
-                                <Newspaper className={`w-5 h-5 text-base ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
+                            <div className="flex flex-row items-center py-4 px-5 gap-3">
+                            <Newspaper className={`w-8 h-8 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
+                            <div className="flex flex-col">
+                              <h2 className={`font-bold ${textPrimary}`}>
                                 주요 뉴스
                               </h2>
                               <p className={`text-sm ${textSecondary}`}>
                                 부동산 시장 소식
                               </p>
+                              </div>
                             </div>
                             
                             {isLoadingNews ? (
@@ -1191,19 +1211,17 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                           isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
                         }`}
                       >
-                        <div className="p-5 pb-3">
-                          <h2 className={`font-bold ${textPrimary}`}>
-                            아파트 실시간 정보
+                        {/* 헤더 */}
+                        <div className={`p-4 border-b ${isDarkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
+                          <h2 className={`font-bold text-base ${textPrimary}`}>
+                            아파트 시세 정보
                           </h2>
-                          <p className={`text-xs mt-0.5 ${textSecondary}`}>
-                            지역별 아파트 시세 정보
-                          </p>
                         </div>
                         
                         {isLoadingApartments ? (
                           <div className={`text-center py-8 ${textSecondary}`}>아파트 정보 로딩 중...</div>
                         ) : apartments && apartments.length > 0 ? (
-                          <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                          <div className="flex flex-col gap-4 p-4">
                             {apartments.slice(0, 5).map((apartment, index) => {
                               const changeRate = apartmentChangeRates[apartment.apt_id];
                               const avgPrice = apartmentAvgPrices[apartment.apt_id];
@@ -1213,7 +1231,7 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                                 <button
                                   key={apartment.apt_id}
                                   onClick={() => onApartmentClick && onApartmentClick(apartment)}
-                                  className={`w-full p-4 text-left transition-all hover:bg-zinc-50 dark:hover:bg-zinc-800/50 active:scale-[0.98] ${
+                                  className={`w-full text-left transition-all hover:bg-zinc-50 dark:hover:bg-zinc-800/50 active:scale-[0.98] ${
                                     isDarkMode ? '' : ''
                                   }`}
                                 >
@@ -1231,11 +1249,11 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                                       </div>
                                       
                                       {/* 아파트 정보 */}
-                                      <div className="flex-1 min-w-0">
-                                        <h3 className={`font-semibold mb-1 ${textPrimary} truncate`}>
-                                          {apartment.apt_name}
+                                      <div className="flex-1 gap-1 min-w-0">
+                                        <h3 className={`font-semibold ${textPrimary} truncate`}>
+                                          {apartment.apt_name}아파트
                                         </h3>
-                                        <p className={`text-xs ${textSecondary} truncate`}>
+                                        <p className={`text-sm ${textSecondary} truncate`}>
                                           {apartment.address || apartment.sigungu_name}
                                         </p>
                                       </div>
@@ -1247,7 +1265,7 @@ export default function Favorites({ onApartmentClick, isDarkMode, isDesktop = fa
                                         <div className={`text-xs ${textSecondary}`}>로딩 중...</div>
                                       ) : changeRate !== null && changeRate !== undefined && avgPrice !== null && avgPrice !== undefined ? (
                                         <>
-                                          <div className={`text-xs font-bold ${
+                                          <div className={`text-base font-bold ${
                                             changeRate >= 0 
                                               ? isDarkMode ? 'text-red-400' : 'text-red-500'
                                               : isDarkMode ? 'text-blue-400' : 'text-blue-500'
