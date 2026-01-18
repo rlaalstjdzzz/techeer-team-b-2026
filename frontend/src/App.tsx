@@ -328,7 +328,7 @@ export default function App() {
               right: 0,
               bottom: 0,
             } : !isDesktop && !isMapView ? {
-              paddingTop: 'calc(56px + 4vh)', // 모바일에서 헤더 높이 + 4vh 여백
+              paddingTop: 'calc(56px + 2vh)', // 모바일에서 헤더 높이 + 4vh 여백
             } : isDesktop && !isMapView ? {
               width: '100%',
               maxWidth: '1400px',
@@ -409,7 +409,7 @@ export default function App() {
                   >
                     {currentView === 'dashboard' && <Dashboard onApartmentClick={handleApartmentSelect} onRegionSelect={handleRegionSelect} onShowMoreSearch={handleShowMoreSearch} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'map' && <MapView onApartmentSelect={handleApartmentSelect} onRegionSelect={handleRegionSelect} onShowMoreSearch={handleShowMoreSearch} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
-                    {currentView === 'favorites' && <Favorites onApartmentClick={handleApartmentSelect} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
+                    {currentView === 'favorites' && <Favorites onApartmentClick={handleApartmentSelect} onRegionSelect={handleRegionSelect} isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'statistics' && <Statistics isDarkMode={isDarkMode} isDesktop={isDesktop} />}
                     {currentView === 'myHome' && (
                       <MyHome 
