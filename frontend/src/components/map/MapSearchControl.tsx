@@ -1357,7 +1357,7 @@ export default function MapSearchControl({
                                             </div>
                                         </>
                                     )
-                                    : !isAIMode && activeTab === 'settings' ? (
+                                ) : !isAIMode && activeTab === 'settings' ? (
                                     <div className="flex flex-col gap-4">
                                         <div className="space-y-3">
                                             {/* 지역 */}
