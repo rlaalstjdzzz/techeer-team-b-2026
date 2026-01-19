@@ -339,7 +339,7 @@ export default function MapSearchControl({
   // AI 모드가 아닐 때만 기존 검색 훅 사용
   const { results, isSearching } = useApartmentSearch(query, true);
   const { isSignedIn, getToken } = useAuth();
-  const { showError, ToastComponent } = useDynamicIslandToast(isDarkMode, 3000);
+  const { showSuccess, showError, ToastComponent } = useDynamicIslandToast(isDarkMode, 3000);
 
   // 검색 결과 변경 시 부모 컴포넌트에 알림 (아파트와 지역 결과 모두 전달)
   const onSearchResultsChangeRef = useRef(onSearchResultsChange);
@@ -543,11 +543,13 @@ export default function MapSearchControl({
     }
   }, []);
 
-  // 컴포넌트 마운트 시 쿠키에서 AI 검색 입력 읽기
+  // 컴포넌트 마운트 시 및 AI 모드/확장 상태 변경 시 쿠키에서 AI 검색 입력 읽기
   useEffect(() => {
-    const inputs = getAISearchInputsFromCookie();
-    setCookieAISearchInputs(inputs);
-  }, []);
+    if (isAIMode && isExpanded) {
+      const inputs = getAISearchInputsFromCookie();
+      setCookieAISearchInputs(inputs);
+    }
+  }, [isAIMode, isExpanded]);
 
   // Click outside to close
   useEffect(() => {
@@ -805,8 +807,9 @@ export default function MapSearchControl({
             ) : (
                 <div 
                     className="flex items-center w-full px-4 gap-2 h-12"
+                    style={{ minWidth: 0 }}
                 >
-                    <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${isAIMode ? 'text-purple-400' : 'text-zinc-400'}`} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600 dark:text-blue-400" />
                     <input
                         ref={inputRef}
                         value={query}
@@ -833,7 +836,7 @@ export default function MapSearchControl({
                           }
                         }}
                         placeholder={isAIMode ? "강남구에 있는 30평대 아파트, 지하철역에서 10분 이내, 초등학교 근처" : "아파트 이름, 지역 검색..."}
-                        className={`flex-1 pl-12 pr-4 py-1.5 rounded-2xl border transition-all ${
+                        className={`flex-1 min-w-0 pl-12 pr-4 py-1.5 rounded-2xl border transition-all ${
                           isAIMode
                             ? isDarkMode
                               ? 'bg-zinc-900 border-purple-500/50 focus:border-purple-400 text-white placeholder:text-purple-300/60'
@@ -1115,6 +1118,7 @@ export default function MapSearchControl({
                                                                         onClick={() => {
                                                                             clearAllRecentViewsFromCookie();
                                                                             setCookieRecentViews([]);
+                                                                            showSuccess('모든 최근 본 아파트가 삭제되었습니다.');
                                                                         }}
                                                                         className={`p-1.5 rounded-full hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                             isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
@@ -1232,6 +1236,7 @@ export default function MapSearchControl({
                                                                                             e.stopPropagation();
                                                                                             deleteRecentViewFromCookie(view.apt_id);
                                                                                             setCookieRecentViews(getRecentViewsFromCookie());
+                                                                                            showSuccess('해당 아파트가 삭제되었습니다.');
                                                                                         }}
                                                                                         className={`p-1.5 rounded-full hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                                             isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
@@ -1315,6 +1320,7 @@ export default function MapSearchControl({
                                                                     onClick={() => {
                                                                         clearAllRecentSearchesFromCookie();
                                                                         setCookieRecentSearches([]);
+                                                                        showSuccess('모든 최근 검색어가 삭제되었습니다.');
                                                                     }}
                                                                     className={`p-1.5 rounded-full hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                         isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
@@ -1395,6 +1401,7 @@ export default function MapSearchControl({
                                                                                                         e.stopPropagation();
                                                                                                         deleteRecentSearchFromCookie(searchTerm);
                                                                                                         setCookieRecentSearches(getRecentSearchesFromCookie());
+                                                                                                        showSuccess('해당 검색어가 삭제되었습니다.');
                                                                                                     }}
                                                                                                     className={`p-1 rounded hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                                 isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
@@ -1722,7 +1729,7 @@ export default function MapSearchControl({
                                                             </motion.button>
                                                         ))}
                                                 </div>
-                                                </div>
+                                                    </div>
                                             )}
                                         </div>
                                     </motion.div>
@@ -1797,25 +1804,23 @@ export default function MapSearchControl({
                                                                 }`}>
                                                                     {apt.apt_name}
                                                                 </p>
-                                                                <div className="flex items-center gap-2 mt-0.5">
-                                                                    {apt.address && (
-                                                                        <div className="flex items-center gap-1">
-                                                                            <MapPin size={11} className={`shrink-0 ${
-                                                                                isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-                                                                            }`} />
-                                                                            <p className={`text-xs truncate ${
-                                                                                isDarkMode ? 'text-zinc-400' : 'text-zinc-600'
-                                                                            }`}>
-                                                                                {apt.address}
-                                                                            </p>
+                                                                {apt.address && (
+                                                                    <div className="flex items-center gap-1 mt-0.5">
+                                                                        <MapPin size={11} className={`shrink-0 ${
+                                                                            isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
+                                                                        }`} />
+                                                                        <p className={`text-xs truncate ${
+                                                                            isDarkMode ? 'text-zinc-400' : 'text-zinc-600'
+                                                                        }`}>
+                                                                            {apt.address}
+                                                                        </p>
                                                     </div>
-                                                                    )}
-                                                                    <span className="text-xs" style={{ color: '#F97316' }}>
-                                                                        {apt.transaction_count}건
-                                                                    </span>
-                                                    </div>
-                                                </div>
+                                        )}
+                                    </div>
                                                         </motion.button>
+                                                        <span className="text-xs shrink-0" style={{ color: '#F97316' }}>
+                                                            {apt.transaction_count}건
+                                                        </span>
                                                     </motion.div>
                                                 ))}
                                             </AnimatePresence>
@@ -1886,6 +1891,7 @@ export default function MapSearchControl({
                                                             <div
                                                                 className="fixed inset-0 z-[999998] bg-black/20"
                                                                 style={{ zIndex: 999998 }}
+                                                                onClick={() => setShowInfoTooltip(false)}
                                                             />
                                                             <div
                                                                 className={`fixed p-4 rounded-xl shadow-2xl border z-[999999] w-80 max-w-[calc(100vw-2rem)] ${
@@ -1953,23 +1959,29 @@ export default function MapSearchControl({
                                                     최근 검색 이력
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    clearAISearchHistory();
-                                                    const updatedHistory = getAISearchHistory();
-                                                    setAiSearchHistory(updatedHistory);
-                                                    setHistoryLoaded(false);
-                                                }}
-                                                className={`p-1.5 rounded-full transition-all duration-200 ${
-                                                    isDarkMode 
-                                                        ? 'hover:bg-zinc-800 text-zinc-400 hover:text-red-400' 
-                                                        : 'hover:bg-zinc-100 text-zinc-500 hover:text-red-600'
-                                                }`}
-                                                title="검색 히스토리 지우기"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            {(getAISearchHistory().length > 0 || cookieAISearchInputs.length > 0) && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        clearAISearchHistory();
+                                                        // 쿠키의 AI 검색 입력어도 삭제
+                                                        document.cookie = `${COOKIE_KEY_AI_SEARCH_INPUTS}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+                                                        setCookieAISearchInputs([]);
+                                                        const updatedHistory = getAISearchHistory();
+                                                        setAiSearchHistory(updatedHistory);
+                                                        setHistoryLoaded(false);
+                                                        showSuccess('모든 검색 히스토리가 삭제되었습니다.');
+                                                    }}
+                                                    className={`p-1.5 rounded-full transition-all duration-200 ${
+                                                        isDarkMode 
+                                                            ? 'hover:bg-zinc-800 text-zinc-400 hover:text-red-400' 
+                                                            : 'hover:bg-zinc-100 text-zinc-500 hover:text-red-600'
+                                                    }`}
+                                                    title="검색 히스토리 지우기"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
                                         </div>
                                         {/* 최근 검색 이력 목록 */}
                                         {cookieAISearchInputs.length > 0 ? (
@@ -2002,6 +2014,7 @@ export default function MapSearchControl({
                                                                 e.stopPropagation();
                                                                 deleteAISearchInputFromCookie(input);
                                                                 setCookieAISearchInputs(getAISearchInputsFromCookie());
+                                                                showSuccess('해당 검색어가 삭제되었습니다.');
                                                             }}
                                                             className={`p-1 rounded hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                 isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'

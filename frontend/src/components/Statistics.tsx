@@ -1394,7 +1394,7 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
   }, [correlationData, isDarkMode, isDesktop, correlationFilter]);
 
   if (loading) {
-    return (
+  return (
       <div className={`w-full max-w-7xl mx-auto ${isDesktop ? 'px-8' : 'px-4'} ${isDesktop ? 'py-12' : 'py-6'} ${isDesktop ? 'space-y-10' : 'space-y-6'}`}>
         <div className={`rounded-2xl p-5 ${cardClass} flex items-center justify-center ${isDesktop ? 'h-80' : 'h-64'}`}>
           <div className="text-center">
@@ -1435,13 +1435,13 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
             <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-zinc-800/50' : 'bg-blue-50'}`}>
               <Activity className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-blue-600'}`} stroke={isDarkMode ? '#ffffff' : '#2563eb'} />
             </div>
-            <div>
+              <div>
               <h2 className={`text-xl font-bold ${textPrimary} mb-1`}>상대 거래량 (RVOL)</h2>
               <p className={`text-sm ${textSecondary}`}>{period}</p>
             </div>
-          </div>
-        </div>
-        
+              </div>
+            </div>
+            
         {/* RVOL 설명 */}
         <div className={`mb-6 p-4 rounded-xl ${bgSecondary} border ${isDarkMode ? 'border-zinc-800/50' : 'border-slate-200'}`}>
           <div className="flex items-start gap-2 mb-3">
@@ -1473,8 +1473,8 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
         <HighchartsReact
           highcharts={Highcharts}
           options={rvolChartOptions}
-        />
-      </div>
+              />
+            </div>
 
       {/* 4분면 분류 차트 */}
       <div className={`rounded-2xl p-5 ${cardClass}`}>
@@ -1482,7 +1482,7 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-zinc-800/50' : 'bg-purple-50'}`}>
               <BarChart3 className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-purple-600'}`} stroke={isDarkMode ? '#ffffff' : '#9333ea'} />
-            </div>
+          </div>
             <div>
               <h2 className={`text-xl font-bold ${textPrimary} mb-1`}>국면 4분면 분류</h2>
               <p className={`text-sm ${textSecondary}`}>최근 6개월 매매/전월세 거래량 변화율 분석</p>
@@ -1704,7 +1704,7 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
       </div>
 
       {/* 주택가격지수(HPI) 차트 */}
-      <div className={`rounded-2xl p-5 ${cardClass}`}>
+          <div className={`rounded-2xl p-5 ${cardClass}`}>
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-zinc-800/50' : 'bg-amber-50'}`}>
@@ -2109,7 +2109,7 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
             <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-zinc-800/50' : 'bg-purple-50'}`}>
               <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-purple-600'}`} stroke={isDarkMode ? '#ffffff' : '#9333ea'} />
             </div>
-            <div>
+          <div>
               <h2 className={`text-xl font-bold ${textPrimary} mb-1`}>인구 이동</h2>
               <p className={`text-sm ${textSecondary}`} style={{ color: isDarkMode ? '#cbd5e1' : undefined }}>
                 지역 간 인구 이동 현황
@@ -2117,7 +2117,7 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
             </div>
           </div>
         </div>
-
+        
         {/* 기본/상관관계 탭 */}
         <div className={`flex gap-2 p-1.5 rounded-2xl mb-6 ${isDarkMode ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
           <button
@@ -2240,9 +2240,9 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-            </div>
-            
+          </div>
+        </div>
+
             {correlationData ? (
               <>
                 {/* 회귀분석 결과 요약 */}
@@ -2256,21 +2256,21 @@ export default function Statistics({ isDarkMode, isDesktop = false }: Statistics
                       <p className={textSecondary} style={{ color: isDarkMode ? '#cbd5e1' : undefined }}>
                         {correlationData.regressionEquation}
                       </p>
-                    </div>
+          </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className={`font-semibold ${textPrimary} mb-1`} style={{ color: isDarkMode ? '#f1f5f9' : undefined }}>결정계수 (R²):</p>
                         <p className={`text-lg font-bold ${textPrimary}`} style={{ color: isDarkMode ? '#f1f5f9' : undefined }}>
                           {(correlationData.rSquared * 100).toFixed(1)}%
                         </p>
-                      </div>
+          </div>
                       <div>
                         <p className={`font-semibold ${textPrimary} mb-1`} style={{ color: isDarkMode ? '#f1f5f9' : undefined }}>상관계수:</p>
                         <p className={`text-lg font-bold ${textPrimary}`} style={{ color: isDarkMode ? '#f1f5f9' : undefined }}>
                           {correlationData.correlation.toFixed(3)}
-                        </p>
-                      </div>
-                    </div>
+          </p>
+        </div>
+      </div>
                     <div>
                       <p className={`font-semibold ${textPrimary} mb-1`} style={{ color: isDarkMode ? '#f1f5f9' : undefined }}>유의확률 (P-value):</p>
                       <p className={textSecondary} style={{ color: isDarkMode ? '#cbd5e1' : undefined }}>
