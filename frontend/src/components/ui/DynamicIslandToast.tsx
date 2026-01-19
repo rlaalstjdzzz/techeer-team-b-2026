@@ -100,10 +100,10 @@ export function DynamicIslandToast({
   }
 
   return createPortal(
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {isVisible && message && (
         <motion.div
-          key={`toast-${Date.now()}-${message}`}
+          key={message}
           initial={{ y: -120, opacity: 0, scale: 0.8, x: '-50%' }}
           animate={{ y: 20, opacity: 1, scale: 1, x: '-50%' }}
           exit={{ y: -120, opacity: 0, scale: 0.8, x: '-50%' }}
@@ -112,6 +112,7 @@ export function DynamicIslandToast({
             stiffness: 300,
             damping: 30,
             mass: 0.8,
+            duration: 0.3,
           }}
           className={`rounded-full shadow-2xl backdrop-blur-xl ${styles.bg} border ${styles.border} ${styles.text}`}
           style={{

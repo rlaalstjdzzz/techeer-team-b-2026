@@ -363,7 +363,8 @@ export default function App() {
                     className={`w-full ${isDesktop ? 'max-w-full' : 'max-w-full'}`}
                     style={{ 
                       position: 'relative',
-                      minHeight: 'calc(100vh - 8rem)'
+                      minHeight: 'calc(100vh - 8rem)',
+                      paddingTop: isDesktop ? '24px' : '16px'
                     }}
                   >
                     <SearchResultsPage

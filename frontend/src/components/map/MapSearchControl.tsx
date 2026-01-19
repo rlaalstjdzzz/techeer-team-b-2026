@@ -422,7 +422,9 @@ export default function MapSearchControl({
           } else {
             setAiResults([]);
             // 시세 정보가 없는 경우 에러 메시지 표시
-            showError('시세 정보가 있는 아파트를 찾을 수 없습니다.');
+            setTimeout(() => {
+              showError('시세 정보가 있는 아파트를 찾을 수 없습니다.');
+            }, 0);
           }
         } catch (error: any) {
           console.error('Failed to search with AI:', error);
@@ -467,7 +469,9 @@ export default function MapSearchControl({
           }
           
           // 다이나믹 아일랜드 토스트로 에러 표시
-          showError(errorMessage);
+          setTimeout(() => {
+            showError(errorMessage);
+          }, 0);
         } finally {
           setIsSearchingAI(false);
         }
@@ -889,7 +893,7 @@ export default function MapSearchControl({
                 }`}
                 style={{ position: 'relative', zIndex: 1, maxHeight: '70vh', overflow: 'hidden' }}
             >
-                    <div className={`w-full overflow-y-auto custom-scrollbar overscroll-contain ${isAIMode && query.length >= 1 ? 'pt-2.5 pb-4 px-4' : 'p-4'}`} style={{ maxHeight: '70vh', position: 'relative', zIndex: 10 }}>
+                    <div className={`w-full overflow-y-auto overscroll-contain ${isAIMode && query.length >= 1 ? 'pt-2.5 pb-4 px-4' : 'p-4'}`} style={{ maxHeight: '70vh', position: 'relative', zIndex: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                         {query.length >= 1 ? (
                             <AnimatePresence mode="wait">
                                 {isAIMode ? (
@@ -1023,10 +1027,12 @@ export default function MapSearchControl({
                                 {!isAIMode ? (
                                     <motion.div
                                         key="normal-tabs"
-                                        initial={{ opacity: 0, filter: 'blur(4px)' }}
-                                        animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                        exit={{ opacity: 0, filter: 'blur(4px)' }}
+                                        layout
+                                        initial={{ opacity: 0, filter: 'blur(4px)', height: 0 }}
+                                        animate={{ opacity: 1, filter: 'blur(0px)', height: 'auto' }}
+                                        exit={{ opacity: 0, filter: 'blur(4px)', height: 0 }}
                                         transition={{ duration: 0.25 }}
+                                        style={{ overflow: 'hidden' }}
                                     >
                                     {/* 탭 버튼 영역 - 항상 유지하여 높이 일관성 보장 */}
                                     <div className="flex gap-1 mb-6 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl w-full">
@@ -1045,6 +1051,7 @@ export default function MapSearchControl({
                                         ))}
                                     </div>
 
+                                    <AnimatePresence mode="wait">
                                 {!isAIMode && activeTab === 'recent' ? (
                                     <motion.div
                                         key="recent-tab"
@@ -1838,24 +1845,34 @@ export default function MapSearchControl({
                                     )}
                                     </motion.div>
                                 ) : !isAIMode && (
-                                    <div className={`flex flex-col items-center justify-center py-8 gap-3 ${
-                                        isDarkMode ? 'text-white' : 'text-zinc-500'
-                                    }`}>
+                                    <motion.div
+                                        key="empty-tab"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className={`flex flex-col items-center justify-center py-8 gap-3 ${
+                                            isDarkMode ? 'text-white' : 'text-zinc-500'
+                                        }`}
+                                    >
                                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                                             isDarkMode ? 'bg-zinc-800/50' : 'bg-zinc-50'
                                         }`}>
                                         </div>
-                                </div>
+                                    </motion.div>
                                 )}
+                                    </AnimatePresence>
                                     </motion.div>
                                 ) : (
                                     <motion.div
                                         key="ai-tabs"
-                                        initial={{ opacity: 0, filter: 'blur(4px)' }}
-                                        animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                        exit={{ opacity: 0, filter: 'blur(4px)' }}
+                                        layout
+                                        initial={{ opacity: 0, filter: 'blur(4px)', height: 0 }}
+                                        animate={{ opacity: 1, filter: 'blur(0px)', height: 'auto' }}
+                                        exit={{ opacity: 0, filter: 'blur(4px)', height: 0 }}
                                         transition={{ duration: 0.25 }}
                                         className="flex flex-col"
+                                        style={{ overflow: 'hidden' }}
                                     >
                                 {query.length < 1 && (
                                     <div className="flex flex-col gap-2">
@@ -1970,7 +1987,10 @@ export default function MapSearchControl({
                                                         const updatedHistory = getAISearchHistory();
                                                         setAiSearchHistory(updatedHistory);
                                                         setHistoryLoaded(false);
-                                                        showSuccess('모든 검색 히스토리가 삭제되었습니다.');
+                                                        // 상태 업데이트 완료 후 다이나믹 아일랜드 표시
+                                                        setTimeout(() => {
+                                                            showSuccess('모든 검색 히스토리가 삭제되었습니다.');
+                                                        }, 0);
                                                     }}
                                                     className={`p-1.5 rounded-full transition-all duration-200 ${
                                                         isDarkMode 
@@ -2014,7 +2034,10 @@ export default function MapSearchControl({
                                                                 e.stopPropagation();
                                                                 deleteAISearchInputFromCookie(input);
                                                                 setCookieAISearchInputs(getAISearchInputsFromCookie());
-                                                                showSuccess('해당 검색어가 삭제되었습니다.');
+                                                                // 상태 업데이트 완료 후 다이나믹 아일랜드 표시
+                                                                setTimeout(() => {
+                                                                    showSuccess('해당 검색어가 삭제되었습니다.');
+                                                                }, 0);
                                                             }}
                                                             className={`p-1 rounded hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
                                                                 isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
@@ -2155,6 +2178,11 @@ export default function MapSearchControl({
         .animate-sky-purple-gradient {
           background-size: 200% 200%;
           animation: skyPurpleGradient 6s ease-in-out infinite;
+        }
+        
+        /* 스크롤바 숨기기 */
+        .overflow-y-auto::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>

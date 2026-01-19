@@ -91,7 +91,7 @@ export default function SearchResultsPage({
   return (
     <div className={`w-full ${isDesktop ? 'max-w-6xl mx-auto' : ''}`}>
       {/* 헤더 */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-20">
         <button
           onClick={onBack}
           className={`p-2 rounded-xl transition-all ${

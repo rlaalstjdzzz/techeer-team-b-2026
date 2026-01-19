@@ -194,9 +194,8 @@ async def get_trending_apartments(
                     "apartments": []
                 }
             }
-            # 빈 데이터도 캐시에 저장 (TTL: 1시간 = 3600초)
-            await set_to_cache(cache_key, response_data, ttl=3600)
-            logger.debug(f"💾 [Trending Apartments] 빈 데이터 캐시 저장: {cache_key}")
+            # 빈 데이터는 캐시에 저장하지 않음 (DB 복구 중일 수 있으므로 매번 조회)
+            logger.debug(f"⚠️ [Trending Apartments] 데이터 없음 - 캐시 저장하지 않음: {cache_key}")
             return response_data
         
         # 아파트 정보 조회
