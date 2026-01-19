@@ -183,6 +183,12 @@ const clearAllRecentViewsFromCookie = (): void => {
   document.cookie = `${COOKIE_KEY_RECENT_VIEWS}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
 };
 
+// 쿠키에서 모든 최근 검색어 삭제
+const clearAllRecentSearchesFromCookie = (): void => {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${COOKIE_KEY_RECENT_SEARCHES}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+};
+
 // 쿠키에서 AI 검색 입력 읽기
 const getAISearchInputsFromCookie = (): string[] => {
   if (typeof document === 'undefined') return [];
@@ -485,16 +491,16 @@ export default function MapSearchControl({
       const apartmentResults = apartmentResultsToUse
         .filter(apt => apt.location != null && apt.location.lat != null && apt.location.lng != null)
         .map(apt => ({
-          ...apt,
-          apt_id: apt.apt_id || apt.apt_id,
-          id: apt.apt_id || apt.apt_id,
-          name: apt.apt_name,
-          apt_name: apt.apt_name,
-          lat: apt.location.lat,
-          lng: apt.location.lng,
-          address: apt.address || '',
-          markerType: 'apartment' as const
-        }));
+        ...apt,
+        apt_id: apt.apt_id || apt.apt_id,
+        id: apt.apt_id || apt.apt_id,
+        name: apt.apt_name,
+        apt_name: apt.apt_name,
+        lat: apt.location.lat,
+        lng: apt.location.lng,
+        address: apt.address || '',
+        markerType: 'apartment' as const
+      }));
       
       // AI 모드일 때는 지역 검색 결과 제외
       const locationResultsForMap = isAIMode ? [] : locationResults.map(loc => ({
@@ -717,6 +723,7 @@ export default function MapSearchControl({
       <div
         style={{
           width: isExpanded ? 360 : 48,
+          maxWidth: isExpanded ? 'calc(100vw - 2rem)' : 48,
           height: isExpanded ? 'auto' : 48,
           borderRadius: 24,
           position: 'relative',
@@ -813,7 +820,7 @@ export default function MapSearchControl({
                               saveAISearchInputToCookie(trimmedQuery);
                               // 쿠키 AI 검색 입력 상태 업데이트
                               setCookieAISearchInputs(getAISearchInputsFromCookie());
-                              e.preventDefault();
+                            e.preventDefault();
                             }
                           }
                         }}
@@ -1028,7 +1035,7 @@ export default function MapSearchControl({
                                     </div>
 
                                 {!isAIMode && activeTab === 'recent' ? (
-                                    <>
+                                        <>
                                             {/* 최근 본 아파트 섹션 */}
                                             {isSignedIn && (
                                                 <div className="mb-6">
@@ -1163,20 +1170,18 @@ export default function MapSearchControl({
                                                                                             : 'hover:bg-zinc-50'
                                                                                     }`}
                                                                                 >
-                                                                                    <motion.button
-                                                                                        whileHover={{ scale: 1.01 }}
-                                                                                        whileTap={{ scale: 0.99 }}
+                                                                                    <button
                                                                                         onClick={() => {
                                                                                             if (view.location && view.location.lat && view.location.lng) {
-                                                                                                const aptData: ApartmentSearchResult = {
+                                                                                                            const aptData: ApartmentSearchResult = {
                                                                                                     apt_id: view.apt_id,
                                                                                                     apt_name: view.apt_name,
                                                                                                     address: view.address || '',
                                                                                                     sigungu_name: view.sigungu_name || '',
                                                                                                     location: view.location,
-                                                                                                    price: '',
-                                                                                                };
-                                                                                                handleSelect(aptData);
+                                                                                                                price: '',
+                                                                                                            };
+                                                                                                            handleSelect(aptData);
                                                                                             }
                                                                                         }}
                                                                                         className="flex-1 flex items-center gap-3 text-left"
@@ -1205,10 +1210,8 @@ export default function MapSearchControl({
                                                                                                 </div>
                                                                                             )}
                                                                                         </div>
-                                                                                    </motion.button>
-                                                                                    <motion.button
-                                                                                        whileHover={{ scale: 1.1 }}
-                                                                                        whileTap={{ scale: 0.9 }}
+                                                                                    </button>
+                                                                                    <button
                                                                                         onClick={(e) => {
                                                                                             e.stopPropagation();
                                                                                             deleteRecentViewFromCookie(view.apt_id);
@@ -1220,7 +1223,7 @@ export default function MapSearchControl({
                                                                                         aria-label="최근 본 아파트 삭제"
                                                                                     >
                                                                                         <X size={14} />
-                                                                                    </motion.button>
+                                                                                    </button>
                                                                                 </motion.div>
                                                                             ))}
                                                                         </AnimatePresence>
@@ -1291,69 +1294,119 @@ export default function MapSearchControl({
                                                             </h3>
                                                         </div>
                                                         <div className="flex items-center gap-2">
+                                                            {cookieRecentSearches.length > 0 && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        clearAllRecentSearchesFromCookie();
+                                                                        setCookieRecentSearches([]);
+                                                                    }}
+                                                                    className={`p-1.5 rounded-full hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
+                                                                        isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
+                                                                    }`}
+                                                                    aria-label="모든 최근 검색어 삭제"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            )}
+                                                            {isRecentSearchesExpanded ? (
+                                                                <ChevronUp
+                                                                    className={`w-4 h-4 transition-colors duration-200 ${
+                                                                        isDarkMode
+                                                                            ? 'text-zinc-400 group-hover:text-white'
+                                                                            : 'text-zinc-600 group-hover:text-zinc-900'
+                                                                    }`}
+                                                                />
+                                                            ) : (
                                                             <ChevronDown
-                                                                className={`w-4 h-4 transition-transform duration-200 ${
-                                                                    isRecentSearchesExpanded ? 'rotate-180' : ''
-                                                                } ${
+                                                                    className={`w-4 h-4 transition-colors duration-200 ${
                                                                     isDarkMode
                                                                         ? 'text-zinc-400 group-hover:text-white'
                                                                         : 'text-zinc-600 group-hover:text-zinc-900'
                                                                 }`}
                                                             />
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </button>
+                                                <AnimatePresence>
                                                 {isRecentSearchesExpanded && (
-                                                    <div className="pt-2">
-                                                        {cookieRecentSearches.length > 0 ? (
-                                                                    <div className="space-y-2">
-                                                                        {cookieRecentSearches.slice(0, 5).map((searchTerm, index) => (
-                                                                            <button
-                                                                                key={index}
-                                                                                onClick={() => {
-                                                                                    handleQueryChange(searchTerm);
-                                                                                    setQuery(searchTerm);
-                                                                                    inputRef.current?.focus();
-                                                                                }}
-                                                                                className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 group ${
-                                                                                    isDarkMode 
-                                                                                        ? 'hover:bg-zinc-800/50 hover:shadow-md' 
-                                                                                        : 'hover:bg-zinc-50 hover:shadow-sm'
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: 'auto' }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            transition={{ duration: 0.2, ease: "easeOut" }}
+                                                            className="overflow-hidden"
+                                                        >
+                                                            <div className="pt-2 max-h-[360px] overflow-y-auto">
+                                                                {cookieRecentSearches.length > 0 ? (
+                                                            <div>
+                                                                        <AnimatePresence mode="popLayout">
+                                                                            {cookieRecentSearches.slice(0, 5).map((searchTerm, index) => (
+                                                                                <motion.div
+                                                                                    key={searchTerm}
+                                                                                    initial={{ opacity: 0, y: -10 }}
+                                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                                    exit={{ opacity: 0, height: 0 }}
+                                                                                    transition={{ 
+                                                                                        duration: 0.2,
+                                                                                        delay: index * 0.03,
+                                                                                        ease: "easeOut"
+                                                                                    }}
+                                                                                    className={`w-full ${index !== cookieRecentSearches.length - 1 ? 'mb-2' : ''}`}
+                                                                                >
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    handleQueryChange(searchTerm);
+                                                                                                    setQuery(searchTerm);
+                                                                                                    inputRef.current?.focus();
+                                                                                                }}
+                                                                                                className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 group ${
+                                                                            isDarkMode 
+                                                                                                        ? 'hover:bg-zinc-800/50 hover:shadow-md' 
+                                                                                                        : 'hover:bg-zinc-50 hover:shadow-sm'
+                                                                                                }`}
+                                                                                            >
+                                                                                                <Clock size={14} className={`shrink-0 ${
+                                                                                                    isDarkMode ? 'text-zinc-400 group-hover:text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-700'
+                                                                            }`} />
+                                                                                                <span className={`flex-1 text-sm font-medium truncate ${
+                                                                                                    isDarkMode ? 'text-white group-hover:text-sky-300' : 'text-zinc-900 group-hover:text-sky-700'
+                                                                                                }`}>
+                                                                                                    {searchTerm}
+                                                                            </span>
+                                                                        <button
+                                                                                                    onClick={(e) => {
+                                                                                                        e.stopPropagation();
+                                                                                                        deleteRecentSearchFromCookie(searchTerm);
+                                                                                                        setCookieRecentSearches(getRecentSearchesFromCookie());
+                                                                                                    }}
+                                                                                                    className={`p-1 rounded hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
+                                                                                isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
+                                                                            }`}
+                                                                                                    aria-label="검색어 삭제"
+                                                                        >
+                                                                                                    <X size={14} />
+                                                                        </button>
+                                                                                            </button>
+                                                                                        </motion.div>
+                                                                ))}
+                                                                                </AnimatePresence>
+                                                            </div>
+                                                        ) : (
+                                                                            <motion.div
+                                                                                initial={{ opacity: 0 }}
+                                                                                animate={{ opacity: 1 }}
+                                                                                className={`text-xs text-center py-3 rounded-lg ${
+                                                                isDarkMode ? 'text-zinc-400 bg-zinc-800/30' : 'text-zinc-500 bg-zinc-50'
                                                                                 }`}
                                                                             >
-                                                                                <Clock size={14} className={`shrink-0 ${
-                                                                                    isDarkMode ? 'text-zinc-400 group-hover:text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-700'
-                                                                                }`} />
-                                                                                <span className={`flex-1 text-sm font-medium truncate ${
-                                                                                    isDarkMode ? 'text-white group-hover:text-sky-300' : 'text-zinc-900 group-hover:text-sky-700'
-                                                                                }`}>
-                                                                                    {searchTerm}
-                                                                                </span>
-                                                                                <button
-                                                                                    onClick={(e) => {
-                                                                                        e.stopPropagation();
-                                                                                        deleteRecentSearchFromCookie(searchTerm);
-                                                                                        setCookieRecentSearches(getRecentSearchesFromCookie());
-                                                                                    }}
-                                                                                    className={`p-1 rounded hover:bg-zinc-700 dark:hover:bg-zinc-700 transition-colors shrink-0 ${
-                                                                                        isDarkMode ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-500 hover:text-red-600'
-                                                                                    }`}
-                                                                                    aria-label="검색어 삭제"
-                                                                                >
-                                                                                    <X size={14} />
-                                                                                </button>
-                                                                            </button>
-                                                                        ))}
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className={`text-xs text-center py-3 rounded-lg ${
-                                                                        isDarkMode ? 'text-zinc-400 bg-zinc-800/30' : 'text-zinc-500 bg-zinc-50'
-                                                                    }`}>
-                                                                        최근 검색 기록이 없습니다
-                                                                    </div>
-                                                                )}
+                                                                최근 검색 기록이 없습니다
+                                                                            </motion.div>
+                                                        )}
                                                     </div>
+                                                        </motion.div>
                                                 )}
+                                                </AnimatePresence>
                                             </div>
                                         </>
                                     )
@@ -1476,7 +1529,7 @@ export default function MapSearchControl({
                                                     교육시설
                                                 </label>
                                                 <div className="flex gap-2">
-                                                    <button
+                                            <button
                                                         onClick={() => setDetailedSearchHasEducation(detailedSearchHasEducation === true ? null : true)}
                                                         className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
                                                             detailedSearchHasEducation === true
@@ -1519,7 +1572,7 @@ export default function MapSearchControl({
                                                         상관없음
                                                     </button>
                                                 </div>
-                                            </div>
+                                                </div>
                                             
                                             {/* 검색 버튼 */}
                                             <motion.button
@@ -1601,7 +1654,7 @@ export default function MapSearchControl({
                                                                 key={apt.apt_id}
                                                                 whileHover={{ scale: 1.01 }}
                                                                 whileTap={{ scale: 0.99 }}
-                                                                onClick={() => {
+                                                onClick={() => {
                                                                     if (apt.location && apt.location.lat && apt.location.lng) {
                                                                         const aptData: ApartmentSearchResult = {
                                                                             apt_id: apt.apt_id,
@@ -1643,7 +1696,7 @@ export default function MapSearchControl({
                                                                 )}
                                                             </motion.button>
                                                         ))}
-                                                    </div>
+                                                </div>
                                                 </div>
                                             )}
                                         </div>
@@ -1721,20 +1774,18 @@ export default function MapSearchControl({
                                                                             }`}>
                                                                                 {apt.address}
                                                                             </p>
-                                                                        </div>
+                                                    </div>
                                                                     )}
-                                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${
-                                                                        isDarkMode ? 'bg-orange-500/20 text-orange-300' : 'bg-orange-100 text-orange-700'
-                                                                    }`}>
+                                                                    <span className="text-xs" style={{ color: '#F97316' }}>
                                                                         {apt.transaction_count}건
                                                                     </span>
-                                                                </div>
-                                                            </div>
+                                                    </div>
+                                                </div>
                                                         </motion.button>
                                                     </motion.div>
                                                 ))}
                                             </AnimatePresence>
-                                        </div>
+                                    </div>
                                     ) : (
                                         <motion.div
                                             initial={{ opacity: 0 }}
@@ -1754,7 +1805,7 @@ export default function MapSearchControl({
                                             isDarkMode ? 'bg-zinc-800/50' : 'bg-zinc-50'
                                         }`}>
                                         </div>
-                                    </div>
+                                </div>
                                 )}
                                     </motion.div>
                                 ) : (
@@ -1831,7 +1882,7 @@ export default function MapSearchControl({
                                                                     >
                                                                         <X className="w-4 h-4" />
                                                                     </button>
-                                                                </div>
+                                            </div>
                                                                 <ul className="text-xs space-y-2">
                                                                     <li className="flex items-start gap-2">
                                                                         <span className="text-sky-500 mt-0.5">•</span>
@@ -1910,7 +1961,7 @@ export default function MapSearchControl({
                                                             isDarkMode ? 'text-white group-hover:text-purple-300' : 'text-zinc-900 group-hover:text-purple-700'
                                                         }`}>
                                                             {input}
-                                                        </span>
+                                            </span>
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -1926,7 +1977,7 @@ export default function MapSearchControl({
                                                         </button>
                                                     </button>
                                                 ))}
-                                            </div>
+                                        </div>
                                         ) : (
                                             <div className={`text-center py-8 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
                                                 <p className="text-sm">AI 검색 이력이 없습니다.</p>
